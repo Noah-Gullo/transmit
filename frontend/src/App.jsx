@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Channel from "./pages/Channel";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
+import NotFound from "./pages/NotFound"
 
 function App() {
   return (
@@ -18,6 +19,8 @@ function App() {
       <Route path="/messages/:userId" element={<Channel />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/users/:userId" element={<UserProfile />} />
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

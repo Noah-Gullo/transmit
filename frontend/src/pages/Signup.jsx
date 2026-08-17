@@ -31,61 +31,93 @@ function Signup() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || "Could not create account");
+        setError(
+          data.message || "Could not create account"
+        );
         return;
       }
 
-      console.log(data);
-
-      navigate("/login");
+      navigate("/");
     } catch (error) {
-      console.error(error);
+      console.error("Signup failed:", error);
       setError("Could not connect to server");
     }
   }
 
   return (
-    <main>
-      <h1>Sign Up</h1>
+    <main className="auth-page">
+      <section className="auth-card">
+        <header className="auth-header">
+          <h1>Create Account</h1>
+          <p>Join Transmit and start messaging.</p>
+        </header>
 
-      {error && <p>{error}</p>}
+        <form
+          className="auth-form"
+          onSubmit={handleSubmit}
+        >
+          <div className="form-group">
+            <label htmlFor="username">
+              Username
+            </label>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Username: </label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(event) =>
+                setUsername(event.target.value)
+              }
+              placeholder="Choose a username"
+              required
+            />
+          </div>
 
-          <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            required
-          />
-        </div>
+          <div className="form-group">
+            <label htmlFor="password">
+              Password
+            </label>
 
-        <div>
-          <label htmlFor="password">Password: </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(event) =>
+                setPassword(event.target.value)
+              }
+              placeholder="Choose a password"
+              required
+            />
+          </div>
 
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
-        </div>
+          {error && (
+            <p className="auth-error">
+              {error}
+            </p>
+          )}
 
-        <button type="submit">
-          Create Account
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="auth-button"
+          >
+            Create Account
+          </button>
+        </form>
 
-      <p>
-        Already have an account?{" "}
-        <Link to="/login">Login</Link>
-      </p>
+        <p className="auth-footer">
+          Already have an account?{" "}
+          <Link to="/login">
+            Login
+          </Link>
+        </p>
 
-      <Link to="/">Back to Home</Link>
+        <Link
+          to="/"
+          className="auth-home-link"
+        >
+          ← Back to Home
+        </Link>
+      </section>
     </main>
   );
 }

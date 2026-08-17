@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-
 function Channel() {
   const { userId } = useParams();
 
@@ -9,6 +8,9 @@ function Channel() {
   const [otherUser, setOtherUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function loadMessages() {
@@ -20,18 +22,37 @@ function Channel() {
           }
         );
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          console.error(data.message);
+        if (response.status === 401) {
+          setError(
+            "You must be logged in to view this conversation."
+          );
           return;
         }
+
+        if (response.status === 404) {
+          setError("User not found.");
+          return;
+        }
+
+        if (!response.ok) {
+          setError("Could not load conversation.");
+          return;
+        }
+
+        const data = await response.json();
 
         setCurrentUser(data.user);
         setOtherUser(data.otherUser);
         setMessages(data.messages);
       } catch (error) {
-        console.error(error);
+        console.error(
+          "Could not load messages:",
+          error
+        );
+
+        setError("Could not connect to server.");
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -44,6 +65,8 @@ function Channel() {
     if (!text.trim()) {
       return;
     }
+
+    setError("");
 
     try {
       const response = await fetch(
@@ -60,12 +83,22 @@ function Channel() {
         }
       );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error(data.message);
+      if (response.status === 401) {
+        setError("You are not logged in.");
         return;
       }
+
+      if (response.status === 404) {
+        setError("User not found.");
+        return;
+      }
+
+      if (!response.ok) {
+        setError("Could not send message.");
+        return;
+      }
+
+      const data = await response.json();
 
       setMessages((previousMessages) => [
         ...previousMessages,
@@ -74,42 +107,167 @@ function Channel() {
 
       setText("");
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Could not send message:",
+        error
+      );
+
+      setError("Could not connect to server.");
     }
   }
 
+  if (loading) {
+    return <p className="loading">Loading...</p>;
+  }
+
+  if (error && !otherUser) {
+    return (
+      <main className="page">
+        <div className="error-card">
+          <p className="error-message">
+            {error}
+          </p>
+
+          <Link
+            to="/dashboard"
+            className="button-link"
+          >
+            Back to Dashboard
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   if (!currentUser || !otherUser) {
-    return <p>Loading conversation...</p>;
+    return (
+      <main className="page">
+        <div className="error-card">
+          <p className="error-message">
+            Could not load conversation.
+          </p>
+
+          <Link
+            to="/dashboard"
+            className="button-link"
+          >
+            Back to Dashboard
+          </Link>
+        </div>
+      </main>
+    );
   }
 
   return (
-    <main>
-      <h1>Conversation with {otherUser.displayName || otherUser.username}</h1>
+    <main className="page">
+      <div className="chat-container">
 
-      <section>
-        {messages.length === 0 ? (
-          <p>No messages yet.</p>
-        ) : (
-          messages.map((message) => (
-            <div key={message.id}>
-              <strong>
-                {message.senderId === currentUser.id
-                  ? "You"
-                  : otherUser.displayName || "@" + otherUser.username}
-              </strong>
+        <header className="chat-header">
+          <div>
+            <Link
+              to="/dashboard"
+              className="back-link"
+            >
+              ← Dashboard
+            </Link>
 
-              <p>{message.text}</p>
-            </div>
-          ))
+            <h1>
+              {otherUser.displayName ||
+                `@${otherUser.username}`}
+            </h1>
+
+            {otherUser.displayName && (
+              <p className="username">
+                @{otherUser.username}
+              </p>
+            )}
+
+            {otherUser.status && (
+              <p className="status">
+                {otherUser.status}
+              </p>
+            )}
+          </div>
+
+          <Link
+            to={`/users/${otherUser.id}`}
+            className="secondary-link"
+          >
+            View Profile
+          </Link>
+        </header>
+
+        <section className="messages">
+          {messages.length === 0 ? (
+            <p className="empty-state">
+              No messages yet. Start the conversation.
+            </p>
+          ) : (
+            messages.map((message) => {
+              const sentByMe =
+                message.senderId === currentUser.id;
+
+              return (
+                <div
+                  key={message.id}
+                  className={
+                    sentByMe
+                      ? "message-row message-row-me"
+                      : "message-row"
+                  }
+                >
+                  <article
+                    className={
+                      sentByMe
+                        ? "message-bubble message-bubble-me"
+                        : "message-bubble"
+                    }
+                  >
+                    <strong>
+                      {sentByMe
+                        ? "You"
+                        : otherUser.displayName ||
+                          `@${otherUser.username}`}
+                    </strong>
+
+                    <p>
+                      {message.text}
+                    </p>
+                  </article>
+                </div>
+              );
+            })
+          )}
+        </section>
+
+        {error && (
+          <p className="error-message">
+            {error}
+          </p>
         )}
-      </section>
 
-      <form onSubmit={handleSubmit}>
-        <input type="text" value={text} onChange={(event) => setText(event.target.value)} placeholder={`Message ${otherUser.displayName || otherUser.username}`}/>
-        <button type="submit">Send</button>
-      </form>
+        <form
+          className="message-form"
+          onSubmit={handleSubmit}
+        >
+          <input
+            type="text"
+            value={text}
+            onChange={(event) =>
+              setText(event.target.value)
+            }
+            placeholder={`Message ${
+              otherUser.displayName ||
+              `@${otherUser.username}`
+            }`}
+          />
 
-      <Link to="/">Back to Home</Link>
+          <button type="submit">
+            Send
+          </button>
+        </form>
+
+      </div>
     </main>
   );
 }

@@ -33,57 +33,87 @@ function Login() {
         return;
       }
 
-      const data = await response.json();
-
       navigate("/dashboard");
     } catch (error) {
-      console.error(error);
+      console.error("Login failed:", error);
       setError("Could not connect to server");
     }
   }
 
   return (
-    <main>
-      <h1>Login</h1>
+    <main className="auth-page">
+      <section className="auth-card">
+        <header className="auth-header">
+          <h1>Login</h1>
+          <p>Welcome back to Transmit.</p>
+        </header>
 
-      {error && <p>{error}</p>}
+        <form
+          className="auth-form"
+          onSubmit={handleSubmit}
+        >
+          <div className="form-group">
+            <label htmlFor="username">
+              Username
+            </label>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Username: </label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(event) =>
+                setUsername(event.target.value)
+              }
+              placeholder="Enter your username"
+              required
+            />
+          </div>
 
-          <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            required
-          />
-        </div>
+          <div className="form-group">
+            <label htmlFor="password">
+              Password
+            </label>
 
-        <div>
-          <label htmlFor="password">Password: </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(event) =>
+                setPassword(event.target.value)
+              }
+              placeholder="Enter your password"
+              required
+            />
+          </div>
 
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
-        </div>
+          {error && (
+            <p className="auth-error">
+              {error}
+            </p>
+          )}
 
-        <button type="submit">
-          Login
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="auth-button"
+          >
+            Login
+          </button>
+        </form>
 
-      <p>
-        Don't have an account?{" "}
-        <Link to="/signup">Sign up</Link>
-      </p>
+        <p className="auth-footer">
+          Don't have an account?{" "}
+          <Link to="/signup">
+            Sign Up
+          </Link>
+        </p>
 
-      <Link to="/">Back to Home</Link>
+        <Link
+          to="/"
+          className="auth-home-link"
+        >
+          ← Back to Home
+        </Link>
+      </section>
     </main>
   );
 }

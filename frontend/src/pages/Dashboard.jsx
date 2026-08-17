@@ -18,8 +18,12 @@ function Dashboard() {
           }
         );
 
-        if (!response.ok) {
+        if (response.status === 401) {
           setUser(null);
+          return;
+        }
+
+        if (!response.ok) {
           return;
         }
 
@@ -28,7 +32,10 @@ function Dashboard() {
         setUser(data.user);
         setUsers(data.users);
       } catch (error) {
-        console.error("Could not load dashboard:", error);
+        console.error(
+          "Could not load dashboard:",
+          error
+        );
       } finally {
         setLoading(false);
       }
@@ -38,77 +45,132 @@ function Dashboard() {
   }, []);
 
   async function handleLogout() {
-    const response = await fetch(
-      "http://localhost:3000/api/logout",
-      {
-        method: "POST",
-        credentials: "include",
-      }
-    );
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/logout",
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
 
-    if (response.ok) {
-      navigate("/login");
+      if (response.ok) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
   }
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <p className="loading">Loading...</p>;
   }
 
   if (!user) {
     return (
-      <main>
-        <h1>Not logged in</h1>
-        <Link to="/login">Login</Link>
+      <main className="page">
+        <div className="error-card">
+          <h1>Not Logged In</h1>
+
+          <p className="error-message">
+            Please log in to view your dashboard.
+          </p>
+
+          <Link
+            to="/login"
+            className="button-link"
+          >
+            Login
+          </Link>
+        </div>
       </main>
     );
   }
 
   return (
-    <main>
-      <header>
-        <h1>Dashboard</h1>
+    <main className="page">
+      <div className="container">
+        <header className="dashboard-header">
+          <div>
+            <h1>Dashboard</h1>
 
-        <p>Welcome, {"@" + user.username}</p>
+            <p>
+              Welcome,{" "}
+              <strong>
+                {user.displayName || user.username}
+              </strong>
+            </p>
+          </div>
 
-        <nav>
-          <Link to="/">Home</Link>
-          {" | "}
-          <Link to="/profile">My Profile</Link>
-          {" | "}
-          <button onClick={handleLogout}>Logout</button>
-        </nav>
-      </header>
+          <nav className="nav">
+            <Link to="/">
+              Home
+            </Link>
 
-      <section>
-        <h2>Users</h2>
+            <Link to="/profile">
+              My Profile
+            </Link>
 
-        {users.length === 0 ? (
-          <p>No other users found.</p>
-        ) : (
-          <ul>
-            {users.map((otherUser) => (
-              <li key={otherUser.id}>
-                <strong>
-                  {otherUser.displayName ||  "@" + otherUser.username}
-                </strong>
+            <button onClick={handleLogout}>
+              Logout
+            </button>
+          </nav>
+        </header>
 
-                {" — "}
+        <section className="card">
+          <h2>Users</h2>
 
-                <Link to={`/messages/${otherUser.id}`}>
-                  Message
-                </Link>
+          {users.length === 0 ? (
+            <p className="empty-state">
+              No other users found.
+            </p>
+          ) : (
+            <ul className="user-list">
+              {users.map((otherUser) => (
+                <li
+                  key={otherUser.id}
+                  className="user-card"
+                >
+                  <div>
+                    <strong>
+                      {otherUser.displayName ||
+                        otherUser.username}
+                    </strong>
 
-                {" | "}
+                    {otherUser.displayName && (
+                      <p className="username">
+                        @{otherUser.username}
+                      </p>
+                    )}
 
-                <Link to={`/users/${otherUser.id}`}>
-                  View Profile
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+                    {otherUser.status && (
+                      <p className="status">
+                        {otherUser.status}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="user-actions">
+                    <Link
+                      to={`/messages/${otherUser.id}`}
+                      className="button-link"
+                    >
+                      Message
+                    </Link>
+
+                    <Link
+                      to={`/users/${otherUser.id}`}
+                      className="secondary-link"
+                    >
+                      View Profile
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
     </main>
   );
 }

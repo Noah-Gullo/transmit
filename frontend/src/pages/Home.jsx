@@ -25,10 +25,9 @@ function Home() {
         }
 
         const data = await response.json();
-
         setUser(data.user);
       } catch (error) {
-        console.error("Could not connect to backend:", error);
+        console.error("Could not check session:", error);
       } finally {
         setLoading(false);
       }
@@ -38,42 +37,69 @@ function Home() {
   }, []);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <p className="loading">Loading...</p>;
   }
 
   return (
-    <main>
-      <h1>Transmit</h1>
+    <main className="home-page">
+      <div className="home-container">
+        <section className="home-content">
+          <h1>Transmit</h1>
 
-      {user ? (
-        <>
-          <p>Welcome, {user.displayName || "@" + user.username}</p>
+          <p className="home-description">
+            Connect with other users and start a conversation.
+          </p>
 
-          <Link to="/dashboard">
-            Dashboard
-          </Link>
+          {user ? (
+            <>
+              <p className="home-welcome">
+                Welcome back,{" "}
+                <strong>
+                  {user.displayName || user.username}
+                </strong>
+              </p>
 
-          {" | "}
+              <div className="home-actions">
+                <Link
+                  to="/dashboard"
+                  className="home-primary-button"
+                >
+                  Dashboard
+                </Link>
 
-          <Link to="/profile">
-            My Profile
-          </Link>
-        </>
-      ) : (
-        <>
-          <p>You are not logged in.</p>
+                <Link
+                  to="/profile"
+                  className="home-secondary-button"
+                >
+                  My Profile
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="muted">
+                Sign in to start messaging other users.
+              </p>
 
-          <Link to="/login">
-            Login
-          </Link>
+              <div className="home-actions">
+                <Link
+                  to="/login"
+                  className="home-primary-button"
+                >
+                  Login
+                </Link>
 
-          {" | "}
-
-          <Link to="/signup">
-            Sign Up
-          </Link>
-        </>
-      )}
+                <Link
+                  to="/signup"
+                  className="home-secondary-button"
+                >
+                  Create Account
+                </Link>
+              </div>
+            </>
+          )}
+        </section>
+      </div>
     </main>
   );
 }

@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const prisma = require("../prisma");
 
-async function signup(req, res) {
+async function signup(req, res, next) {
   try {
     const { username, password } = req.body;
 
@@ -30,15 +30,21 @@ async function signup(req, res) {
         username,
         password: hashedPassword,
       },
-      select: {
-        id: true,
-        username: true,
-      },
     });
 
-    return res.status(201).json({
-      message: "Account created",
-      user,
+    req.login(user, (error) => {
+      if (error) {
+        return next(error);
+      }
+
+      return res.status(201).json({
+        message: "Account created",
+        user: {
+          id: user.id,
+          username: user.username,
+          displayName: user.displayName,
+        },
+      });
     });
   } catch (error) {
     console.error(error);

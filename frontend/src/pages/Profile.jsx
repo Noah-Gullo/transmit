@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 
 function Profile() {
   const [displayName, setDisplayName] = useState("");
-  const [bio, setBio] = useState("");
   const [status, setStatus] = useState("");
+  const [bio, setBio] = useState("");
 
+  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function loadProfile() {
@@ -19,17 +21,25 @@ function Profile() {
           }
         );
 
+        if (response.status === 401) {
+          setError("You must be logged in to view your profile.");
+          return;
+        }
+
         if (!response.ok) {
+          setError("Could not load profile.");
           return;
         }
 
         const data = await response.json();
 
+        setUsername(data.user.username);
         setDisplayName(data.user.displayName || "");
-        setBio(data.user.bio || "");
         setStatus(data.user.status || "");
+        setBio(data.user.bio || "");
       } catch (error) {
         console.error("Could not load profile:", error);
+        setError("Could not connect to server.");
       } finally {
         setLoading(false);
       }
@@ -40,6 +50,9 @@ function Profile() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+
+    setMessage("");
+    setError("");
 
     try {
       const response = await fetch(
@@ -52,8 +65,8 @@ function Profile() {
           credentials: "include",
           body: JSON.stringify({
             displayName,
-            bio,
             status,
+            bio,
           }),
         }
       );
@@ -61,79 +74,147 @@ function Profile() {
       const data = await response.json();
 
       if (!response.ok) {
-        setMessage(data.message || "Could not update profile");
+        setError(data.message || "Could not update profile.");
         return;
       }
 
-      setMessage("Profile updated");
+      setDisplayName(data.user.displayName || "");
+      setStatus(data.user.status || "");
+      setBio(data.user.bio || "");
+
+      setMessage("Profile updated.");
     } catch (error) {
-      console.error(error);
-      setMessage("Could not update profile");
+      console.error("Could not update profile:", error);
+      setError("Could not connect to server.");
     }
   }
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <p className="loading">Loading...</p>;
+  }
+
+  if (error && !username) {
+    return (
+      <main className="page">
+        <div className="error-card">
+          <p className="error-message">
+            {error}
+          </p>
+
+          <Link
+            to="/dashboard"
+            className="button-link"
+          >
+            Back to Dashboard
+          </Link>
+        </div>
+      </main>
+    );
   }
 
   return (
-    <main>
-      <h1>My Profile</h1>
+    <main className="page">
+      <div className="profile-container">
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="displayName">
-            Display Name
-          </label>
+        <header className="profile-header">
+          <div>
+            <h1>My Profile</h1>
 
-          <input
-            id="displayName"
-            value={displayName}
-            onChange={(event) =>
-              setDisplayName(event.target.value)
-            }
-          />
-        </div>
+            <p className="username">
+              @{username}
+            </p>
+          </div>
 
-        <div>
-          <label htmlFor="bio">
-            Bio
-          </label>
+          <Link
+            to="/dashboard"
+            className="secondary-link"
+          >
+            ← Dashboard
+          </Link>
+        </header>
 
-          <textarea
-            id="bio"
-            value={bio}
-            onChange={(event) =>
-              setBio(event.target.value)
-            }
-          />
-        </div>
+        <section className="card">
+          <form
+            className="profile-form"
+            onSubmit={handleSubmit}
+          >
 
-        <div>
-          <label htmlFor="status">
-            Status
-          </label>
+            <div className="form-group">
+              <label htmlFor="displayName">
+                Display Name
+              </label>
 
-          <input
-            id="status"
-            value={status}
-            onChange={(event) =>
-              setStatus(event.target.value)
-            }
-            placeholder="Available"
-          />
-        </div>
+              <input
+                id="displayName"
+                type="text"
+                value={displayName}
+                onChange={(event) =>
+                  setDisplayName(event.target.value)
+                }
+                placeholder="Your display name"
+              />
+            </div>
 
-        <button type="submit">
-          Save Profile
-        </button>
-      </form>
+            <div className="form-group">
+              <label htmlFor="status">
+                Status
+              </label>
 
-      {message && <p>{message}</p>}
+              <select
+                id="status"
+                value={status}
+                onChange={(event) =>
+                  setStatus(event.target.value)
+                }
+              >
+                <option value="">Select a status</option>
+                <option value="Available">Available</option>
+                <option value="Busy">Busy</option>
+                <option value="Away">Away</option>
+                <option value="Do Not Disturb">
+                  Do Not Disturb
+                </option>
+              </select>
+            </div>
 
-      <Link to="/dashboard">
-        Back to Dashboard
-      </Link>
+            <div className="form-group">
+              <label htmlFor="bio">
+                Bio
+              </label>
+
+              <textarea
+                id="bio"
+                value={bio}
+                onChange={(event) =>
+                  setBio(event.target.value)
+                }
+                placeholder="Tell people a little about yourself..."
+              />
+            </div>
+
+            {error && (
+              <p className="auth-error">
+                {error}
+              </p>
+            )}
+
+            {message && (
+              <p className="profile-message">
+                {message}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="save-button"
+            >
+              Save Profile
+            </button>
+
+          </form>
+        </section>
+
+      </div>
     </main>
   );
 }
