@@ -1,50 +1,51 @@
-#! .env
-const express = require('express');
+require("dotenv").config();
+
+const express = require("express");
+const cors = require("cors");
+const session = require("express-session");
+const pgSession = require("connect-pg-simple")(session);
+
+const passport = require("./passport");
+const indexRouter = require("./routes/indexRouter");
+
 const app = express();
 const PORT = 3000;
-const path = require("node:path");
-const session = require('express-session');
-const pgSession = require("connect-pg-simple")(session);
-const passport = require('passport'); 
-const indexRouter = require('./routes/indexRouter');
 
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs");
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-const assetsPath = path.join(__dirname, "public");
-app.use(express.static(assetsPath));
 
 app.use(
   session({
     store: new pgSession({
-      conString: process.env.DB_URL,
+      conString: process.env.DATABASE_URL,
       createTableIfMissing: true,
     }),
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
+      httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24,
     },
-  }),
+  })
 );
 
 app.use(passport.initialize());
 app.use(passport.session());
-require("./passport"); 
 
-app.use((req, res, next) => {
-  res.locals.user = req.user;
-  next();
-});
-
-app.use("/", indexRouter);
+app.use("/api", indexRouter);
 
 app.listen(PORT, (error) => {
-    if(error){
-        throw error;
-    }
-    
-    console.log(`Listening on ${PORT}`);
-})
+  if (error) {
+    throw error;
+  }
+
+  console.log(`Listening on ${PORT}`);
+});
