@@ -72,7 +72,7 @@ function Channel() {
     try {
       const API_URL = import.meta.env.VITE_API_URL;
       const response = await fetch(
-        `${API_URL}}/api/messages/${userId}`,
+        `${API_URL}/api/messages/${userId}`,
         {
           method: "POST",
           headers: {
