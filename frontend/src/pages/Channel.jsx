@@ -15,8 +15,9 @@ function Channel() {
   useEffect(() => {
     async function loadMessages() {
       try {
+        const API_URL = import.meta.env.VITE_API_URL;
         const response = await fetch(
-          `http://localhost:3000/api/messages/${userId}`,
+          `${API_URL}/api/messages/${userId}`,
           {
             credentials: "include",
           }
@@ -69,8 +70,9 @@ function Channel() {
     setError("");
 
     try {
+      const API_URL = import.meta.env.VITE_API_URL;
       const response = await fetch(
-        `http://localhost:3000/api/messages/${userId}`,
+        `${API_URL}}/api/messages/${userId}`,
         {
           method: "POST",
           headers: {

@@ -14,8 +14,9 @@ function Profile() {
   useEffect(() => {
     async function loadProfile() {
       try {
+        const API_URL = import.meta.env.VITE_API_URL;
         const response = await fetch(
-          "http://localhost:3000/api/profile",
+          `${API_URL}/api/profile`,
           {
             credentials: "include",
           }
@@ -55,8 +56,9 @@ function Profile() {
     setError("");
 
     try {
+      const API_URL = import.meta.env.VITE_API_URL;
       const response = await fetch(
-        "http://localhost:3000/api/profile",
+        `${API_URL}/api/profile`,
         {
           method: "PUT",
           headers: {

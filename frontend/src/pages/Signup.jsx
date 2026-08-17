@@ -13,8 +13,9 @@ function Signup() {
     setError("");
 
     try {
+      const API_URL = import.meta.env.VITE_API_URL;
       const response = await fetch(
-        "http://localhost:3000/api/signup",
+        `${API_URL}/api/signup`,
         {
           method: "POST",
           headers: {

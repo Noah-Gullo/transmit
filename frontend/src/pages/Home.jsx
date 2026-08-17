@@ -8,8 +8,9 @@ function Home() {
   useEffect(() => {
     async function checkSession() {
       try {
+        const API_URL = import.meta.env.VITE_API_URL;
         const response = await fetch(
-          "http://localhost:3000/api/users",
+          `${API_URL}/api/users`,
           {
             credentials: "include",
           }

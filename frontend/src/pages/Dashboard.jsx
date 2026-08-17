@@ -11,8 +11,9 @@ function Dashboard() {
   useEffect(() => {
     async function loadDashboard() {
       try {
+        const API_URL = import.meta.env.VITE_API_URL;
         const response = await fetch(
-          "http://localhost:3000/api/users",
+          `${API_URL}/api/users`,
           {
             credentials: "include",
           }
@@ -46,8 +47,9 @@ function Dashboard() {
 
   async function handleLogout() {
     try {
+      const API_URL = import.meta.env.VITE_API_URL;
       const response = await fetch(
-        "http://localhost:3000/api/logout",
+        `${API_URL}/api/logout`,
         {
           method: "POST",
           credentials: "include",

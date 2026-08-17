@@ -12,7 +12,7 @@ const app = express();
 const PORT = 3000;
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );
