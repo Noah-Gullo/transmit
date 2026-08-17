@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+
 
 function Channel() {
   const { userId } = useParams();
@@ -104,17 +105,11 @@ function Channel() {
       </section>
 
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-          placeholder={`Message ${otherUser.username}`}
-        />
-
-        <button type="submit">
-          Send
-        </button>
+        <input type="text" value={text} onChange={(event) => setText(event.target.value)} placeholder={`Message ${otherUser.username}`}/>
+        <button type="submit">Send</button>
       </form>
+
+      <Link to="/">Back to Home</Link>
     </main>
   );
 }

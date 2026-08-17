@@ -8,13 +8,33 @@ async function getMessages(req, res) {
       });
     }
 
+    const otherUserId = Number(req.params.userId);
+
+    const otherUser = await prisma.user.findUnique({
+      where: {
+        id: otherUserId,
+      },
+      select: {
+        id: true,
+        username: true,
+      },
+    });
+
+    if (!otherUser) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
     const messages = await prisma.message.findMany({
       where: {
         OR: [
           {
             senderId: req.user.id,
+            receiverId: otherUserId,
           },
           {
+            senderId: otherUserId,
             receiverId: req.user.id,
           },
         ],
@@ -34,7 +54,7 @@ async function getMessages(req, res) {
         },
       },
       orderBy: {
-        id: "desc",
+        id: "asc",
       },
     });
 
@@ -43,6 +63,7 @@ async function getMessages(req, res) {
         id: req.user.id,
         username: req.user.username,
       },
+      otherUser,
       messages,
     });
   } catch (error) {
@@ -62,19 +83,35 @@ async function sendMessage(req, res) {
       });
     }
 
-    const { text, receiverId } = req.body;
+    const receiverId = Number(req.params.userId);
+    const { text } = req.body;
 
-    if (!text || !receiverId) {
+    if (!text || !text.trim()) {
       return res.status(400).json({
-        message: "Text and receiverId are required",
+        message: "Message text is required",
+      });
+    }
+
+    const receiver = await prisma.user.findUnique({
+      where: {
+        id: receiverId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!receiver) {
+      return res.status(404).json({
+        message: "User not found",
       });
     }
 
     const message = await prisma.message.create({
       data: {
-        text,
+        text: text.trim(),
         senderId: req.user.id,
-        receiverId: Number(receiverId),
+        receiverId,
       },
       include: {
         sender: {
