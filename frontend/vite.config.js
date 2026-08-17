@@ -4,4 +4,11 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+
+  preview: {
+    host: "0.0.0.0",
+    allowedHosts: [
+      "transmit-production-b0d1.up.railway.app",
+    ],
+  },
 })
