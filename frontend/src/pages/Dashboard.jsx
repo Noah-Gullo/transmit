@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 function Dashboard() {
   const [user, setUser] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function loadDashboard() {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/messages",
+          "http://localhost:3000/api/users",
           {
             credentials: "include",
           }
@@ -23,7 +26,7 @@ function Dashboard() {
         const data = await response.json();
 
         setUser(data.user);
-        setMessages(data.messages);
+        setUsers(data.users);
       } catch (error) {
         console.error("Could not load dashboard:", error);
       } finally {
@@ -46,7 +49,8 @@ function Dashboard() {
 
       if (response.ok) {
         setUser(null);
-        setMessages([]);
+        setUsers([]);
+        navigate("/login");
       }
     } catch (error) {
       console.error("Logout failed:", error);
@@ -62,6 +66,8 @@ function Dashboard() {
       <main>
         <h1>Not logged in</h1>
         <p>Please log in to view your dashboard.</p>
+
+        <Link to="/login">Login</Link>
       </main>
     );
   }
@@ -81,21 +87,17 @@ function Dashboard() {
       </header>
 
       <section>
-        <h2>Your Messages</h2>
+        <h2>Users</h2>
 
-        {messages.length === 0 ? (
-          <p>You have no messages.</p>
+        {users.length === 0 ? (
+          <p>No other users found.</p>
         ) : (
           <ul>
-            {messages.map((message) => (
-              <li key={message.id}>
-                <p>{message.text}</p>
-
-                <small>
-                  {message.senderId === user.id
-                    ? "Sent by you"
-                    : "Received"}
-                </small>
+            {users.map((otherUser) => (
+              <li key={otherUser.id}>
+                <Link to={`/messages/${otherUser.id}`}>
+                  {otherUser.username}
+                </Link>
               </li>
             ))}
           </ul>

@@ -52,7 +52,7 @@ function Signup() {
 
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="username">Username</label>
+          <label htmlFor="username">Username: </label>
 
           <input
             id="username"
@@ -64,7 +64,7 @@ function Signup() {
         </div>
 
         <div>
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">Password: </label>
 
           <input
             id="password"
@@ -84,6 +84,8 @@ function Signup() {
         Already have an account?{" "}
         <Link to="/login">Login</Link>
       </p>
+
+      <Link to="/">Back to Home</Link>
     </main>
   );
 }

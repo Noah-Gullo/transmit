@@ -35,8 +35,6 @@ function Login() {
 
       const data = await response.json();
 
-      console.log(data);
-
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
@@ -52,7 +50,7 @@ function Login() {
 
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="username">Username</label>
+          <label htmlFor="username">Username: </label>
 
           <input
             id="username"
@@ -64,7 +62,7 @@ function Login() {
         </div>
 
         <div>
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">Password: </label>
 
           <input
             id="password"
@@ -84,6 +82,8 @@ function Login() {
         Don't have an account?{" "}
         <Link to="/signup">Sign up</Link>
       </p>
+
+      <Link to="/">Back to Home</Link>
     </main>
   );
 }
