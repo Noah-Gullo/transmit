@@ -17,6 +17,8 @@ async function getUsers(req, res) {
       select: {
         id: true,
         username: true,
+        displayName: true,
+        status: true
       },
     });
 

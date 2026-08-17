@@ -5,6 +5,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Channel from "./pages/Channel";
+import Profile from "./pages/Profile";
+import UserProfile from "./pages/UserProfile";
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/messages/:userId" element={<Channel />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/users/:userId" element={<UserProfile />} />
     </Routes>
   );
 }

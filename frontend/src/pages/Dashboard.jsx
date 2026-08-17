@@ -18,7 +18,7 @@ function Dashboard() {
           }
         );
 
-        if (response.status === 401) {
+        if (!response.ok) {
           setUser(null);
           return;
         }
@@ -38,22 +38,16 @@ function Dashboard() {
   }, []);
 
   async function handleLogout() {
-    try {
-      const response = await fetch(
-        "http://localhost:3000/api/logout",
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
-
-      if (response.ok) {
-        setUser(null);
-        setUsers([]);
-        navigate("/login");
+    const response = await fetch(
+      "http://localhost:3000/api/logout",
+      {
+        method: "POST",
+        credentials: "include",
       }
-    } catch (error) {
-      console.error("Logout failed:", error);
+    );
+
+    if (response.ok) {
+      navigate("/login");
     }
   }
 
@@ -65,8 +59,6 @@ function Dashboard() {
     return (
       <main>
         <h1>Not logged in</h1>
-        <p>Please log in to view your dashboard.</p>
-
         <Link to="/login">Login</Link>
       </main>
     );
@@ -77,13 +69,15 @@ function Dashboard() {
       <header>
         <h1>Dashboard</h1>
 
-        <div>
-          <p>Welcome, {user.username}</p>
+        <p>Welcome, {"@" + user.username}</p>
 
-          <button onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
+        <nav>
+          <Link to="/">Home</Link>
+          {" | "}
+          <Link to="/profile">My Profile</Link>
+          {" | "}
+          <button onClick={handleLogout}>Logout</button>
+        </nav>
       </header>
 
       <section>
@@ -95,8 +89,20 @@ function Dashboard() {
           <ul>
             {users.map((otherUser) => (
               <li key={otherUser.id}>
+                <strong>
+                  {otherUser.displayName ||  "@" + otherUser.username}
+                </strong>
+
+                {" — "}
+
                 <Link to={`/messages/${otherUser.id}`}>
-                  {otherUser.username}
+                  Message
+                </Link>
+
+                {" | "}
+
+                <Link to={`/users/${otherUser.id}`}>
+                  View Profile
                 </Link>
               </li>
             ))}

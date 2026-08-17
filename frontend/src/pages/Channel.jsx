@@ -84,7 +84,7 @@ function Channel() {
 
   return (
     <main>
-      <h1>Conversation with {otherUser.username}</h1>
+      <h1>Conversation with {otherUser.displayName || otherUser.username}</h1>
 
       <section>
         {messages.length === 0 ? (
@@ -95,7 +95,7 @@ function Channel() {
               <strong>
                 {message.senderId === currentUser.id
                   ? "You"
-                  : otherUser.username}
+                  : otherUser.displayName || "@" + otherUser.username}
               </strong>
 
               <p>{message.text}</p>
@@ -105,7 +105,7 @@ function Channel() {
       </section>
 
       <form onSubmit={handleSubmit}>
-        <input type="text" value={text} onChange={(event) => setText(event.target.value)} placeholder={`Message ${otherUser.username}`}/>
+        <input type="text" value={text} onChange={(event) => setText(event.target.value)} placeholder={`Message ${otherUser.displayName || otherUser.username}`}/>
         <button type="submit">Send</button>
       </form>
 

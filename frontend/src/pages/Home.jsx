@@ -15,8 +15,12 @@ function Home() {
           }
         );
 
-        if (!response.ok) {
+        if (response.status === 401) {
           setUser(null);
+          return;
+        }
+
+        if (!response.ok) {
           return;
         }
 
@@ -24,8 +28,7 @@ function Home() {
 
         setUser(data.user);
       } catch (error) {
-        console.error("Could not check session:", error);
-        setUser(null);
+        console.error("Could not connect to backend:", error);
       } finally {
         setLoading(false);
       }
@@ -44,19 +47,27 @@ function Home() {
 
       {user ? (
         <>
-          <p>Welcome, {user.username}</p>
+          <p>Welcome, {user.displayName || "@" + user.username}</p>
 
           <Link to="/dashboard">
             Dashboard
           </Link>
+
+          {" | "}
+
+          <Link to="/profile">
+            My Profile
+          </Link>
         </>
       ) : (
         <>
+          <p>You are not logged in.</p>
+
           <Link to="/login">
             Login
           </Link>
 
-          <br />
+          {" | "}
 
           <Link to="/signup">
             Sign Up
